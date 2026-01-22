@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NiXNi | Nikhil & Niyeti</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600&family=Playfair+Display:ital,wght@1,400;1,700&display=swap');
+
+        :root {
+            --gold: #D4AF37;
+            --dark: #1a1a1a;
+            --cream: #f9f9f9;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; background: var(--cream); color: var(--dark); overflow-x: hidden; }
+        
+        /* Typography */
+        h1, h2, h3 { font-family: 'Playfair Display', serif; }
+        .jazzy-text { font-style: italic; color: var(--gold); }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: radial-gradient(circle, #2a2a2a 0%, #000 100%);
+            color: white;
+            padding: 20px;
+        }
+
+        .hero h1 { font-size: 5rem; letter-spacing: -2px; line-height: 0.9; margin-bottom: 20px; }
+        .hero p { font-size: 1.2rem; letter-spacing: 4px; text-transform: uppercase; margin-top: 10px; }
+        .scroll-down { margin-top: 50px; animation: bounce 2s infinite; font-size: 2rem; color: var(--gold); cursor: pointer; }
+
+        /* RSVP Section */
+        .rsvp-section {
+            padding: 80px 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .form-box {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            margin-top: 40px;
+            border: 1px solid var(--gold);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+        }
+
+        button {
+            background: var(--dark);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: 0.3s;
+            border-radius: 50px;
+        }
+
+        button:hover { background: var(--gold); transform: translateY(-3px); }
+
+        /* Footer */
+        footer { padding: 40px; text-align: center; background: var(--dark); color: #555; }
+        
+        /* Utilities */
+        .hidden { display: none; }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-10px);} 60% {transform: translateY(-5px);} }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 3.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <section class="hero">
+        <p>Save The Date</p>
+        <h1>Ni <span class="jazzy-text">X</span> Ni</h1>
+        <p>12 . 12 . 2026</p>
+        <div class="scroll-down" onclick="document.getElementById('rsvp').scrollIntoView({behavior: 'smooth'})">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <section id="rsvp" class="rsvp-section">
+        <h2>Are you ready to vibe?</h2>
+        <p>Join us for the celebration of a lifetime.</p>
+
+        <div class="form-box">
+            <form name="submit-to-google-sheet">
+                <input name="Name" type="text" placeholder="Your Name" required>
+                <input name="Email" type="email" placeholder="Your Email" required>
+                
+                <select name="Attending" required>
+                    <option value="" disabled selected>Will you be there?</option>
+                    <option value="Yes">Yes, wouldn't miss it!</option>
+                    <option value="No">No, will celebrate in spirit</option>
+                </select>
+
+                <input name="Guests" type="number" placeholder="Total Guests (including you)" min="1" value="1">
+                <textarea name="Message" placeholder="Leave a note for the couple..." rows="3"></textarea>
+                
+                <button type="submit">Send RSVP</button>
+            </form>
+            <div id="success-msg" class="hidden" style="margin-top:20px; color: green;">
+                <h3><i class="fas fa-check-circle"></i> Received! See you there.</h3>
+            </div>
+            <div id="loading-msg" class="hidden" style="margin-top:20px; color: var(--gold);">
+                Sending...
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>Nikhil & Niyeti • 2026</p>
+    </footer>
+
+    <script>
+        // --- CONFIGURATION ---
+        const scriptURL = 'YOUR_GOOGLE_SCRIPT_URL_HERE'; // PASTE YOUR URL HERE
+        // ---------------------
+
+        const form = document.forms['submit-to-google-sheet'];
+        const successMsg = document.getElementById('success-msg');
+        const loadingMsg = document.getElementById('loading-msg');
+
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            loadingMsg.classList.remove('hidden');
+            form.style.display = 'none';
+
+            fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+                .then(response => {
+                    loadingMsg.classList.add('hidden');
+                    successMsg.classList.remove('hidden');
+                    // Reset form logic if needed
+                })
+                .catch(error => {
+                    console.error('Error!', error.message);
+                    loadingMsg.classList.add('hidden');
+                    form.style.display = 'block';
+                    alert("Something went wrong. Please try again.");
+                });
+        });
+    </script>
+</body>
+</html>
